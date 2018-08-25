@@ -13,7 +13,7 @@
 
 class Board {
 public:
-    Board(Vec size);
+    explicit Board(Vec size);
     ~Board();
     std::string toString();
     const Vec &getSize() const;

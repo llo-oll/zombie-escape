@@ -4,7 +4,7 @@
 
 #include "Vec.h"
 
-Vec::Vec(const int x, const int y)
+Vec::Vec(int x, int y)
     :x {x}, y {y}
 {}
 
@@ -22,7 +22,7 @@ std::ostream &operator<<(std::ostream &os, const Vec &vec) {
     return os;
 }
 
-Vec::Vec(const Vec &other) {
-    x = other.x;
-    y = other.y;
-}
+Vec::Vec(const Vec &other)
+    :x {other.x},
+    y {other.y}
+{}
