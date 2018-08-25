@@ -12,7 +12,7 @@ class Vec {
 public:
     int x;
     int y;
-    Vec(int x, int y);
+    Vec(const int x, const int y);
     Vec(const Vec& other);
 
     bool operator==(const Vec &rhs) const;

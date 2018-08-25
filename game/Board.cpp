@@ -4,7 +4,6 @@
 #include "Board.h"
 
 Board::Board(Vec size)
-    //TODO add deconstructor.
     :idRecycleList {nullptr},
     maxPieces {size.x * size.y},
     pieceArray {new Vec*[maxPieces]},
@@ -39,12 +38,13 @@ Board::~Board() {
     }
 }
 
-
-/*
+/**
  * Places a piece at the given position.
  * Returns an int id which can be used to refer to the piece in future.
  * If there is already a piece at the given position the new piece is ignored and the method returns -1.
  * Throws an out of range exception if the position is outside the board.
+ * @param position the position at which to place the piece on the board.
+ * @return the id used when refering to the piece that was just placed.
  */
 int Board::add(Vec position) {
     //If position is out of bounds throw out_of_range exception.
@@ -60,21 +60,58 @@ int Board::add(Vec position) {
     return id;
 }
 
-
-
-/*
+/**
+ * Useful for testing.
+ *
  * Checks the board for consistency:
  *  There is only one of each id in the 2 dimensional representation (squareMatrix).
  *  Each id with a position in pieceArray appears at the corresponding position in the 2d representation.
  *  Each id in the squareMatrix has its position in pieceArray.
+ * @return true if the board is in a consistent state false otherwise.
  */
 bool Board::checkConsistency() {
-    //TODO implement this
-    throw std::logic_error("Not implemented");
-    return false;
+    //Check there is only one of each id in squareMatrix.
+    bool idSet[pieceArraySize];
+    for (int i = 0; i < pieceArraySize; ++i) {
+        idSet[i]= false;
+    }
+    for (int x = 0; x < size.x; ++x) {
+        for (int y = 0; y < size.y; ++y) {
+            int id = squareMatrix[x][y];
+            if (id != -1) {
+                if (idSet[id]) {
+                    return false;
+                }
+                idSet[id] = true;
+            }
+        }
+    }
+
+    //Each id with a position in pieceArray appears at the corresponding position in squareMatrix.
+    for (int i = 0; i < pieceArraySize; ++i) {
+        if (pieceArray[i] != nullptr) {
+            Vec pos = *pieceArray[i];
+            if (squareMatrix[pos.x][pos.y] != i) {
+                return false;
+            }
+        }
+    }
+
+    //Each id in the squareMatrix has its position in pieceArray.
+    for (int x = 0; x < size.x; ++x) {
+        for (int y = 0; y < size.y; ++y) {
+            int id = squareMatrix[x][y];
+            if (id != -1) {
+                if (pieceArray[id] == nullptr || *pieceArray[id] != Vec(x,y)) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
 }
 
-/*
+/**
  * Throws a logic_error if the id doesn't refer to a piece on the board.
  */
 void Board::checkIdExists(int id) {
@@ -85,8 +122,9 @@ void Board::checkIdExists(int id) {
     }
 }
 
-/*
+/**
  * Throws an exception if the given position is outside the board.
+ * @param position
  */
 void Board::checkInBounds(Vec position) {
     if (position.x < 0 || position.y < 0
@@ -97,18 +135,26 @@ void Board::checkInBounds(Vec position) {
     }
 }
 
+/**
+ * Throws a logic error if the piece doesn't exist
+ * @param id the id of the piece to find
+ * @return the position of the piece
+ */
 Vec Board::find(int id) {
     checkIdExists(id);
     return *pieceArray[id];
 }
 
-/*
- * The next available id.
+/**
+ * @return The next available id.
  */
 int Board::getNextPieceId() {
     int id;
     if (idRecycleList != nullptr) {
-        //TODO deal with this case
+        id = idRecycleList->id;
+        idList* tmp = idRecycleList;
+        idRecycleList = idRecycleList->next;
+        delete tmp;
     } else {
         id = pieceArraySize++;
     }
@@ -118,12 +164,16 @@ int Board::getNextPieceId() {
 const Vec &Board::getSize() const {
     return size;
 }
-/*
+
+/**
  * Moves the piece with the given id from where it is to the given position.
  * If there is already a piece in the new position that piece is removed from the board and its id returned.
  * Otherwise, -1 is returned.
  * Throws a logic_error if there is no piece matching the given piece id.
  * Throws an out_of_range exception if the given position is outside the board.
+ * @param id the piece to move
+ * @param position the position to move to.
+ * @return the id of any piece that was already at the position or -1 if there was no piece.
  */
 int Board::move(int id, Vec position) {
     checkInBounds(position);
@@ -141,9 +191,10 @@ int Board::move(int id, Vec position) {
     return false;
 }
 
-/*
- * Returns either the id of the piece at the given position or -1 if there is no such piece.
+/**
  * Throws an out of bounds exception if the position is outside the board.
+ * @param position the position to peak
+ * @return the id of the piece at the position or -1 if there is no piece.
  */
 int Board::peak(Vec position) {
     checkInBounds(position);
@@ -151,16 +202,26 @@ int Board::peak(Vec position) {
     return id;
 }
 
-/*
+/**
+ * Adds the id to recyclelist.
+ * @param id
+ */
+void Board::recycleId(int id) {
+    idRecycleList = new idList{id, (idRecycleList == nullptr ? nullptr : idRecycleList)};
+}
+
+/**
  * Removes the piece with the given id from the board.
  * Throws an invalid_argument exception if the id doesn't exist.
+ * @param id
  */
 void Board::remove(int id) {
-    //TODO recycle old id with idList
     checkIdExists(id);
     Vec* pos = &*pieceArray[id];
     pieceArray[id] = nullptr;
     squareMatrix[pos->x][pos->y] = -1;
+
+    recycleId(id);
     delete pos;
 }
 
@@ -175,6 +236,7 @@ std::string Board::toString() {
     }
     return ss.str();
 }
+
 
 
 

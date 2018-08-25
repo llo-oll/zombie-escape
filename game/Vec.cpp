@@ -4,7 +4,7 @@
 
 #include "Vec.h"
 
-Vec::Vec(int x, int y)
+Vec::Vec(const int x, const int y)
     :x {x}, y {y}
 {}
 
