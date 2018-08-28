@@ -166,7 +166,7 @@ const IntVec &Board::getSize() const {
 }
 
 bool Board::isInBounds(IntVec position) const {
-     return position.x >= 0 || position.y >= 0 || position.x < size.x || position.y < size.y;
+     return position.x >= 0 && position.y >= 0 && position.x < size.x && position.y < size.y;
 }
 
 /**

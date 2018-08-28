@@ -90,3 +90,15 @@ TEST(BoardTests, recycleID) {
     EXPECT_TRUE((idToRecycle == anOldId && another == otherOldId) || (idToRecycle == otherOldId && another == anOldId));
     EXPECT_TRUE(board.checkConsistency());
 }
+
+TEST(BoardTests, isInBoundsMethod) {
+    Board board{Board(IntVec(10, 10))};
+    EXPECT_TRUE(board.isInBounds(IntVec(0,0)));
+    EXPECT_TRUE(board.isInBounds(IntVec(9,9)));
+    EXPECT_FALSE(board.isInBounds(IntVec(-1,5)));
+    EXPECT_FALSE(board.isInBounds(IntVec(5,10)));
+    EXPECT_FALSE(board.isInBounds(IntVec(3,-1)));
+    EXPECT_FALSE(board.isInBounds(IntVec(3,10)));
+
+
+}
