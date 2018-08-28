@@ -3,10 +3,10 @@
 #include <iostream>
 #include "Board.h"
 
-Board::Board(Vec size)
+Board::Board(IntVec size)
     :idRecycleList {nullptr},
     maxPieces {size.x * size.y},
-    pieceArray {new Vec*[maxPieces]},
+    pieceArray {new IntVec*[maxPieces]},
     pieceArraySize {0},
     size {size},
     squareMatrix {new int*[size.x]}
@@ -44,9 +44,9 @@ Board::~Board() {
  * If there is already a piece at the given position the new piece is ignored and the method returns -1.
  * Throws an out of range exception if the position is outside the board.
  * @param position the position at which to place the piece on the board.
- * @return the id used when refering to the piece that was just placed.
+ * @return the id used when refering to the piece that was just placed or -1 if there was already a piece at the given position.
  */
-int Board::add(Vec position) {
+int Board::add(IntVec position) {
     //If position is out of bounds throw out_of_range exception.
     checkInBounds(position);
     //If square is occupied return -1.
@@ -55,7 +55,7 @@ int Board::add(Vec position) {
     }
     //otherwise get a new id and place it on the board.
     int id = getNextPieceId();
-    pieceArray[id] = new Vec(position.x, position.y);
+    pieceArray[id] = new IntVec(position.x, position.y);
     squareMatrix[position.x][position.y] = id;
     return id;
 }
@@ -69,7 +69,7 @@ int Board::add(Vec position) {
  *  Each id in the squareMatrix has its position in pieceArray.
  * @return true if the board is in a consistent state false otherwise.
  */
-bool Board::checkConsistency() {
+bool Board::checkConsistency() const {
     //Check there is only one of each id in squareMatrix.
     bool idSet[pieceArraySize];
     for (int i = 0; i < pieceArraySize; ++i) {
@@ -90,7 +90,7 @@ bool Board::checkConsistency() {
     //Each id with a position in pieceArray appears at the corresponding position in squareMatrix.
     for (int i = 0; i < pieceArraySize; ++i) {
         if (pieceArray[i] != nullptr) {
-            Vec pos = *pieceArray[i];
+            IntVec pos = *pieceArray[i];
             if (squareMatrix[pos.x][pos.y] != i) {
                 return false;
             }
@@ -102,7 +102,7 @@ bool Board::checkConsistency() {
         for (int y = 0; y < size.y; ++y) {
             int id = squareMatrix[x][y];
             if (id != -1) {
-                if (pieceArray[id] == nullptr || *pieceArray[id] != Vec(x,y)) {
+                if (pieceArray[id] == nullptr || *pieceArray[id] != IntVec(x,y)) {
                     return false;
                 }
             }
@@ -114,7 +114,7 @@ bool Board::checkConsistency() {
 /**
  * Throws a logic_error if the id doesn't refer to a piece on the board.
  */
-void Board::checkIdExists(int id) {
+void Board::checkIdExists(int id) const {
     if (id < 0 || id >= maxPieces || pieceArray[id] == nullptr) {
         std::stringstream errorMessage;
         errorMessage << "There is no piece with id " << id << " on the board";
@@ -126,7 +126,7 @@ void Board::checkIdExists(int id) {
  * Throws an exception if the given position is outside the board.
  * @param position
  */
-void Board::checkInBounds(Vec position) {
+void Board::checkInBounds(IntVec position) const {
     if (position.x < 0 || position.y < 0
         || position.x >= size.x || position.y >= size.y) {
         std::stringstream errorMessage;
@@ -140,7 +140,7 @@ void Board::checkInBounds(Vec position) {
  * @param id the id of the piece to find
  * @return the position of the piece
  */
-Vec Board::find(int id) {
+IntVec Board::find(int id) const{
     checkIdExists(id);
     return *pieceArray[id];
 }
@@ -161,8 +161,12 @@ int Board::getNextPieceId() {
     return id;
 }
 
-const Vec &Board::getSize() const {
+const IntVec &Board::getSize() const {
     return size;
+}
+
+bool Board::isInBounds(IntVec position) const {
+     return position.x >= 0 || position.y >= 0 || position.x < size.x || position.y < size.y;
 }
 
 /**
@@ -175,20 +179,19 @@ const Vec &Board::getSize() const {
  * @param position the position to move to.
  * @return the id of any piece that was already at the position or -1 if there was no piece.
  */
-int Board::move(int id, Vec position) {
+int Board::move(int id, IntVec position) {
     checkInBounds(position);
     checkIdExists(id);
 
     int otherId = peak(position);
-    if (otherId != -1) {
-        remove(otherId);
-    }
+    if (otherId == id) return id;
+    if (otherId != -1) remove(otherId);
 
     remove(id);
     squareMatrix[position.x][position.y] = id;
     delete pieceArray[id];
-    pieceArray[id] = new Vec(position);
-    return false;
+    pieceArray[id] = new IntVec(position);
+    return otherId;
 }
 
 /**
@@ -196,7 +199,7 @@ int Board::move(int id, Vec position) {
  * @param position the position to peak
  * @return the id of the piece at the position or -1 if there is no piece.
  */
-int Board::peak(Vec position) {
+int Board::peak(IntVec position) const {
     checkInBounds(position);
     int id = squareMatrix[position.x][position.y];
     return id;
@@ -217,17 +220,17 @@ void Board::recycleId(int id) {
  */
 void Board::remove(int id) {
     checkIdExists(id);
-    Vec* pos = &*pieceArray[id];
+    IntVec* pos = &*pieceArray[id];
     pieceArray[id] = nullptr;
     squareMatrix[pos->x][pos->y] = -1;
-
     recycleId(id);
     delete pos;
 }
 
-std::string Board::toString() {
+std::string Board::toString() const {
     std::stringstream ss;
-    for (int y = 0; y < size.y; ++y) {
+    for (int y = 0;y < size.y; ++y) {
+        ss  << y << ": ";
         for (int x = 0; x < size.x; ++x) {
             int square = squareMatrix[x][y];
             ss << (square == -1 ? "- ": std::to_string(square) + " ");
@@ -236,6 +239,7 @@ std::string Board::toString() {
     }
     return ss.str();
 }
+
 
 
 

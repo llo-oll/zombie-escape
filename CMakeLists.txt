@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_executable(zombierun main.cpp)
 
-include_directories(game)
+include_directories(gameset)
 
-add_subdirectory(game)
+add_subdirectory(gameset)
 add_subdirectory(tests)
 
-target_link_libraries(zombierun game)
+target_link_libraries(zombierun gameset)
