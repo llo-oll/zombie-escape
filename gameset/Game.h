@@ -17,17 +17,17 @@ public:
     void moveZombies();
     std::string toString() const;
     bool isGameOver() const;
+    bool isLost() const;
+    bool isWon() const;
 
 private:
     Board board;
+    int exitId;
     bool gameLost;
     int playerId;
     IntVec roomSize;
     std::vector<int> zombieIds;
     bool gameWon;
-public:
-    bool isWon() const;
-
 };
 
 

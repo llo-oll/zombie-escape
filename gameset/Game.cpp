@@ -7,9 +7,10 @@ Game::Game(IntVec roomSize, int numOfZombies)
      gameLost{false},
      roomSize {roomSize},
      gameWon {false},
-     zombieIds {std::vector<int>(numOfZombies)}
+     zombieIds {std::vector<int>(static_cast<unsigned long>(numOfZombies))}
 {
     playerId = board.add(IntVec(0,0));
+    exitId = board.add(roomSize - IntVec(1,1));
     for (int i = 0; i < numOfZombies; ++i) {
         IntVec v = IntVec(std::rand() % roomSize.x, std::rand() % roomSize.y);
         zombieIds[i] = board.add(v);
@@ -19,16 +20,22 @@ Game::Game(IntVec roomSize, int numOfZombies)
     }
 }
 
-Game::~Game() {
-}
+Game::~Game() = default;
 
 void Game::movePlayer(IntVec move) {
     if (isGameOver()) return;
 
     IntVec pos = board.find(playerId);
     IntVec newPos = pos + move;
-    if (board.isInBounds(newPos) && board.peak(newPos) == -1) {
-        board.move(playerId, newPos);
+    if (board.isInBounds(newPos)) {
+        int squareId = board.peak(newPos);
+        if (squareId == -1) {
+            board.move(playerId, newPos);
+        }
+        else if (squareId == exitId) {
+            board.move(playerId, newPos);
+            gameWon = true;
+        }
     }
 }
 
@@ -64,4 +71,8 @@ bool Game::isGameOver() const {
 
 bool Game::isWon() const {
     return gameWon;
+}
+
+bool Game::isLost() const {
+    return gameLost;
 }

@@ -7,14 +7,22 @@
 
 IntVec decodeInput(int c) {
     switch (c) {
+        case 'k':
         case 'w': return IntVec( 0,-1);
+        case 'u':
         case 'e': return IntVec( 1,-1);
+        case 'l':
         case 'd': return IntVec( 1, 0);
-        case 'x':
+        case 'n':
         case 'c': return IntVec( 1, 1);
+        case 'j':
+        case 'x':
         case 's': return IntVec( 0, 1);
+        case 'b':
         case 'z': return IntVec(-1, 1);
+        case 'h':
         case 'a': return IntVec(-1, 0);
+        case 'y':
         case 'q': return IntVec(-1,-1);
         default: return IntVec(0,0);
     }
@@ -28,10 +36,6 @@ void display(Game& game) {
     refresh();
 }
 
-void playerMove(Game& game) {
-    int c = getch();
-    game.movePlayer(decodeInput(c));
-}
 
 void initCurses() {
     //init curses
@@ -42,22 +46,53 @@ void initCurses() {
     noecho();
 }
 
+void sleep(int seconds) {
+    std::this_thread::sleep_for(std::chrono::seconds(seconds));
+}
+
+bool playLevel(IntVec size, int numzombies) {
+    //TODO tidy up this logic
+    Game game {Game(size, numzombies)};
+    while (!game.isGameOver()) {
+        display(game);
+        for (int i = 0; i <= 2; ++i) {
+            int c = getch();
+            game.movePlayer(decodeInput(c));
+            display(game);
+            if (game.isWon()) break;
+        }
+        if (game.isWon()) break;
+        sleep(1);
+        game.moveZombies();
+    }
+    display(game);
+    sleep(1);
+    return game.isLost();
+}
+
 
 int main() {
     initCurses();
 
-    Game game {Game(IntVec(10,10), 4)};
-    while (!game.isGameOver()) {
-        display(game);
-        playerMove(game);
-        display(game);
-        playerMove(game);
-        display(game);
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        game.moveZombies();
+    int maxZombies = 10;
+    for (int numZs = 5; numZs <= maxZombies; ++numZs) {
+        bool isLost = playLevel(IntVec(10, 10), numZs);
+        if (isLost) {
+            clear();
+            move(0,0);
+            printw("YOU LOSE;)");
+            refresh();
+            sleep(2);
+            break;
+        }
+        if (numZs == maxZombies) {
+            clear();
+            move(0,0);
+            printw("W.I.N.N.E.R");
+            refresh();
+            sleep(2);
+        }
     }
-    display(game);
-    std::this_thread::sleep_for(std::chrono::seconds(4));
 
     //exit curses
     endwin();
