@@ -60,10 +60,10 @@ void sleep(int seconds) {
 }
 
 bool playLevel(const IntVec &size, int numzombies) {
-    //TODO tidy up this logic
     Game game{Game(size, numzombies)};
+    int movesPerTurn = 3;
     while (!game.isGameOver()) {
-        for (int i = 0; i <= 2; ++i) {
+        for (int i = 0; i < movesPerTurn; ++i) {
             display(game);
             int c = getch();
             game.movePlayer(decodeInput(c));
@@ -81,7 +81,7 @@ bool playLevel(const IntVec &size, int numzombies) {
 int main() {
     initCurses();
 
-    int maxZombies = 10;
+    int maxZombies = 12;
     for (int numZs = 5; numZs <= maxZombies; ++numZs) {
         bool isLost = playLevel(IntVec(10, 10), numZs);
         if (isLost) {
