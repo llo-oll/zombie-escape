@@ -59,7 +59,7 @@ void sleep(int seconds) {
     std::this_thread::sleep_for(std::chrono::seconds(seconds));
 }
 
-bool playLevel(IntVec size, int numzombies) {
+bool playLevel(const IntVec &size, int numzombies) {
     //TODO tidy up this logic
     Game game{Game(size, numzombies)};
     while (!game.isGameOver()) {
