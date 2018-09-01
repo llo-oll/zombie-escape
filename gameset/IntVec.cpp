@@ -1,13 +1,11 @@
 #include "IntVec.h"
 
 IntVec::IntVec(int x, int y)
-    :x {x}, y {y}
-{}
+        : x{x}, y{y} {}
 
 IntVec::IntVec(const IntVec &that)
-        :x {that.x},
-         y {that.y}
-{}
+        : x{that.x},
+          y{that.y} {}
 
 
 bool IntVec::operator==(const IntVec &that) const {
@@ -20,11 +18,11 @@ bool IntVec::operator!=(const IntVec &that) const {
 }
 
 IntVec IntVec::operator+(const IntVec &that) const {
-    return IntVec(x+that.x, y+that.y);
+    return IntVec(x + that.x, y + that.y);
 }
 
 IntVec IntVec::operator-(const IntVec &that) const {
-    return IntVec(x-that.x, y-that.y);
+    return IntVec(x - that.x, y - that.y);
 }
 
 std::ostream &operator<<(std::ostream &os, const IntVec &vec) {
@@ -41,7 +39,7 @@ IntVec IntVec::inverse() {
 }
 
 /**
- * @return an IntVec representing a move of 1 square on a grid in the direction of the square represented by "this" IntVec
+ * @return an IntVec representing a move of 1 square on a grid in the direction of the square represented by "this" IntVec.
  * one of (0,1), (1,1), (1,0), (1, -1), (0, -1), (-1, -1), (-1, 0), (1, -1), and (0, 0)
  */
 IntVec IntVec::unitise() {

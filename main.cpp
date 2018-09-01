@@ -8,27 +8,36 @@
 IntVec decodeInput(int c) {
     switch (c) {
         case 'k':
-        case 'w': return IntVec( 0,-1);
+        case 'w':
+            return IntVec(0, -1);
         case 'u':
-        case 'e': return IntVec( 1,-1);
+        case 'e':
+            return IntVec(1, -1);
         case 'l':
-        case 'd': return IntVec( 1, 0);
+        case 'd':
+            return IntVec(1, 0);
         case 'n':
-        case 'c': return IntVec( 1, 1);
+        case 'c':
+            return IntVec(1, 1);
         case 'j':
         case 'x':
-        case 's': return IntVec( 0, 1);
+        case 's':
+            return IntVec(0, 1);
         case 'b':
-        case 'z': return IntVec(-1, 1);
+        case 'z':
+            return IntVec(-1, 1);
         case 'h':
-        case 'a': return IntVec(-1, 0);
+        case 'a':
+            return IntVec(-1, 0);
         case 'y':
-        case 'q': return IntVec(-1,-1);
-        default: return IntVec(0,0);
+        case 'q':
+            return IntVec(-1, -1);
+        default:
+            return IntVec(0, 0);
     }
 }
 
-void display(Game& game) {
+void display(Game &game) {
     clear();
     refresh();
     move(0, 0);
@@ -52,17 +61,15 @@ void sleep(int seconds) {
 
 bool playLevel(IntVec size, int numzombies) {
     //TODO tidy up this logic
-    Game game {Game(size, numzombies)};
+    Game game{Game(size, numzombies)};
     while (!game.isGameOver()) {
-        display(game);
         for (int i = 0; i <= 2; ++i) {
+            display(game);
             int c = getch();
             game.movePlayer(decodeInput(c));
-            display(game);
             if (game.isWon()) break;
         }
         if (game.isWon()) break;
-        sleep(1);
         game.moveZombies();
     }
     display(game);
@@ -79,16 +86,16 @@ int main() {
         bool isLost = playLevel(IntVec(10, 10), numZs);
         if (isLost) {
             clear();
-            move(0,0);
-            printw("YOU LOSE;)");
+            move(0, 0);
+            printw(").: L O S E R :.(");
             refresh();
             sleep(2);
             break;
         }
         if (numZs == maxZombies) {
             clear();
-            move(0,0);
-            printw("W.I.N.N.E.R");
+            move(0, 0);
+            printw("(; W.I.N.N.E.R ;)");
             refresh();
             sleep(2);
         }

@@ -8,8 +8,10 @@ class IntVec {
 public:
     const int x;
     const int y;
+
     IntVec(int x, int y);
-    IntVec(const IntVec& that);
+
+    IntVec(const IntVec &that);
 
     bool operator==(const IntVec &that) const;
 
@@ -22,6 +24,7 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const IntVec &vec);
 
     IntVec inverse();
+
     IntVec unitise();
 };
 

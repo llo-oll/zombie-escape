@@ -4,24 +4,23 @@
 #include "Board.h"
 
 Board::Board(IntVec size)
-    :idRecycleList {nullptr},
-    maxPieces {size.x * size.y},
-    pieceArray {new IntVec*[maxPieces]},
-    pieceArraySize {0},
-    size {size},
-    squareMatrix {new int*[size.x]}
-{
+        : idRecycleList{nullptr},
+          maxPieces{size.x * size.y},
+          pieceArray{new IntVec *[maxPieces]},
+          pieceArraySize{0},
+          size{size},
+          squareMatrix{new int *[size.x]} {
     for (int i = 0; i < size.x; ++i) {
-       squareMatrix[i] = new int[size.y];
-       for (int j = 0; j < size.y; ++j) {
-           squareMatrix[i][j] = -1;
-       }
+        squareMatrix[i] = new int[size.y];
+        for (int j = 0; j < size.y; ++j) {
+            squareMatrix[i][j] = -1;
+        }
     }
 }
 
 Board::~Board() {
-    while (idRecycleList != nullptr){
-        idList* tmp = idRecycleList;
+    while (idRecycleList != nullptr) {
+        idList *tmp = idRecycleList;
         idRecycleList = idRecycleList->next;
         delete tmp;
     }
@@ -34,8 +33,9 @@ Board::~Board() {
     delete[] pieceArray;
 
     for (int x = 0; x < size.x; ++x) {
-        delete [] squareMatrix[x];
+        delete[] squareMatrix[x];
     }
+    delete[] squareMatrix;
 }
 
 /**
@@ -73,7 +73,7 @@ bool Board::checkConsistency() const {
     //Check there is only one of each id in squareMatrix.
     bool idSet[pieceArraySize];
     for (int i = 0; i < pieceArraySize; ++i) {
-        idSet[i]= false;
+        idSet[i] = false;
     }
     for (int x = 0; x < size.x; ++x) {
         for (int y = 0; y < size.y; ++y) {
@@ -102,7 +102,7 @@ bool Board::checkConsistency() const {
         for (int y = 0; y < size.y; ++y) {
             int id = squareMatrix[x][y];
             if (id != -1) {
-                if (pieceArray[id] == nullptr || *pieceArray[id] != IntVec(x,y)) {
+                if (pieceArray[id] == nullptr || *pieceArray[id] != IntVec(x, y)) {
                     return false;
                 }
             }
@@ -130,7 +130,8 @@ void Board::checkInBounds(IntVec position) const {
     if (position.x < 0 || position.y < 0
         || position.x >= size.x || position.y >= size.y) {
         std::stringstream errorMessage;
-        errorMessage << "Position (" << position.x << ", " << position.y << ") out of range of board size (" << size.x << ", " << size.y << ")";
+        errorMessage << "Position (" << position.x << ", " << position.y << ") out of range of board size (" << size.x
+                     << ", " << size.y << ")";
         throw std::out_of_range{errorMessage.str()};
     }
 }
@@ -140,7 +141,7 @@ void Board::checkInBounds(IntVec position) const {
  * @param id the id of the piece to find
  * @return the position of the piece
  */
-IntVec Board::find(int id) const{
+IntVec Board::find(int id) const {
     checkIdExists(id);
     return *pieceArray[id];
 }
@@ -152,7 +153,7 @@ int Board::getNextPieceId() {
     int id;
     if (idRecycleList != nullptr) {
         id = idRecycleList->id;
-        idList* tmp = idRecycleList;
+        idList *tmp = idRecycleList;
         idRecycleList = idRecycleList->next;
         delete tmp;
     } else {
@@ -166,7 +167,7 @@ const IntVec &Board::getSize() const {
 }
 
 bool Board::isInBounds(IntVec position) const {
-     return position.x >= 0 && position.y >= 0 && position.x < size.x && position.y < size.y;
+    return position.x >= 0 && position.y >= 0 && position.x < size.x && position.y < size.y;
 }
 
 /**
@@ -220,7 +221,7 @@ void Board::recycleId(int id) {
  */
 void Board::remove(int id) {
     checkIdExists(id);
-    IntVec* pos = &*pieceArray[id];
+    IntVec *pos = &*pieceArray[id];
     pieceArray[id] = nullptr;
     squareMatrix[pos->x][pos->y] = -1;
     recycleId(id);
@@ -229,11 +230,10 @@ void Board::remove(int id) {
 
 std::string Board::toString() const {
     std::stringstream ss;
-    for (int y = 0;y < size.y; ++y) {
-        ss  << y << ": ";
+    for (int y = 0; y < size.y; ++y) {
         for (int x = 0; x < size.x; ++x) {
             int square = squareMatrix[x][y];
-            ss << (square == -1 ? "- ": std::to_string(square) + " ");
+            ss << (square == -1 ? "- " : std::to_string(square) + " ");
         }
         ss << '\n';
     }

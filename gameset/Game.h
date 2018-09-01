@@ -11,13 +11,19 @@
 class Game {
 public:
     Game(IntVec roomSize, int numOfZombies);
+
     ~Game();
 
     void movePlayer(IntVec direction);
+
     void moveZombies();
+
     std::string toString() const;
+
     bool isGameOver() const;
+
     bool isLost() const;
+
     bool isWon() const;
 
 private:
